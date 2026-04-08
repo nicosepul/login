@@ -12,13 +12,13 @@ class TestUsersSeeder extends Seeder
     {
         \App\Models\User::truncate();
         User::updateOrCreate(
-            ['email' => 'test1@example.com'],
-            ['name' => 'Usuario Prueba 1', 'password' => Hash::make('password123'), 'role_id' => 4, 'active' => true, 'removed' => false]
+            ['correo' => 'test1@example.com'],
+            ['nombre' => 'Usuario Prueba 1', 'password' => Hash::make('password123'),]
         );
 
         User::updateOrCreate(
-            ['email' => 'test2@example.com'],
-            ['name' => 'Usuario Prueba 2', 'password' => Hash::make('password123'), 'role_id' => 4, 'active' => true, 'removed' => false]
+            ['correo' => 'test2@example.com'],
+            ['nombre' => 'Usuario Prueba 2', 'password' => Hash::make('password123'),]
         );
     }
 }

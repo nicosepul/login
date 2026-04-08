@@ -12,12 +12,12 @@
         <form method="POST" action="{{ route('login.store') }}">
             @csrf
             <div class="mb-3">
-                <input type="email" class="form-control" name="email" placeholder="Email" required>
+                <input type="email" class="form-control" name="correo" placeholder="Correo" required>
             </div>
             <div class="mb-3">
                 <input type="password" class="form-control" name="password" placeholder="Password" required>
             </div>
-            @error('email')
+            @error('correo')
                 <div class="text-danger mb-3">{{ $message }}</div>
             @enderror
             <button class="btn btn-primary w-100" type="submit">Entrar</button>

@@ -2,6 +2,6 @@
 
 @section('content')
 <div class="container">
-    <register-component></register-component>
+    <vista-usuarios-component></vista-usuarios-component>
 </div>
 @endsection

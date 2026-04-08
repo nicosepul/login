@@ -18,12 +18,12 @@ class LoginController
     public function store(Request $request)
     {
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
+            'correo' => ['required', 'email'],
             'password' => ['required'],
         ]);
 
         if (!Auth::guard('user')->attempt($credentials)) {
-            return back()->withErrors(['email' => 'Credenciales incorrectas'])->withInput();
+            return back()->withErrors(['correo' => 'Credenciales incorrectas'])->withInput();
         }
 
         $request->session()->regenerate();

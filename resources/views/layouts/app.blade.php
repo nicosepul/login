@@ -25,6 +25,7 @@
                         <a class="nav-link" href="{{ url('/buscador') }}">Buscador</a>
                         <a class="nav-link" href="{{ url('/registro-ingreso') }}">Nuevo Ingreso</a>
                         <a class="nav-link" href="{{ url('/ingresos') }}">Historial</a>
+                        <a class="nav-link" href="{{ url('/usuarios') }}">Usuarios</a>
                         <form method="POST" action="{{ route('logout') }}" class="d-inline">
                             @csrf
                             <button type="submit" class="nav-link btn btn-link p-0 align-baseline">Cerrar sesión</button>
@@ -33,7 +34,7 @@
                 @else
                     <a class="navbar-brand" href="{{ url('/login') }}">Acceder</a>
                     <div class="d-flex gap-3">
-                        <a class="nav-link" href="{{ route('register') }}">Crear cuenta</a>
+                        <a class="nav-link" href="{{ route('registro-usuario') }}">Crear cuenta</a>
                     </div>
                 @endif
             </div>

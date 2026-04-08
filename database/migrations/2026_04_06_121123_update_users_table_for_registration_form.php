@@ -19,7 +19,7 @@ return new class extends Migration
             }
 
             // Nuevos campos
-            $table->string('direccion')->nullable()->after('email');
+            $table->string('direccion')->nullable()->after('correo');
             $table->string('genero')->nullable()->after('direccion');
             $table->date('fecha_nacimiento')->nullable()->after('genero');
 

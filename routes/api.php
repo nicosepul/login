@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 use App\Http\Controllers\VeterinariaController;
-use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\RegistroController;
 
 Route::get('/razas', [VeterinariaController::class, 'obtenerRazas']);
 Route::get('/mascotas', [VeterinariaController::class, 'obtenerMascotas']);
@@ -25,7 +25,7 @@ Route::post('/registrar-ingreso', [VeterinariaController::class, 'registrarIngre
 Route::get('/ingresos', [VeterinariaController::class, 'obtenerIngresos']);
 Route::put('/mascota/{id}', [VeterinariaController::class, 'actualizarMascota']);
 Route::delete('/mascota/{id}', [VeterinariaController::class, 'eliminarMascota']);
-Route::get('/countries', [RegisterController::class, 'countries']);
+Route::get('/countries', [RegistroController::class, 'paises']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

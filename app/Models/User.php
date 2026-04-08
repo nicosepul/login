@@ -11,8 +11,8 @@ class User extends Authenticatable
     use Notifiable;
 
     protected $fillable = [
-        'name',
-        'email',
+        'nombre',
+        'correo',
         'password',
         'direccion',
         'genero',
@@ -39,5 +39,10 @@ class User extends Authenticatable
         }
 
         return Carbon::parse($this->fecha_nacimiento)->age;
+    }
+
+    public function getEmailForPasswordReset()
+    {
+        return $this->correo;
     }
 }
