@@ -131,6 +131,16 @@
 										</option>
 									</select>
 								</td>
+								<td colspan="2">
+									<div class="row g-2">
+										<div class="col-6">
+											<input v-model="formularioEdicion.contrasena" type="password" class="form-control form-control-sm" placeholder="Nueva contraseña (opcional)" />
+										</div>
+										<div class="col-6">
+											<input v-model="formularioEdicion.contrasena_confirmation" type="password" class="form-control form-control-sm" placeholder="Confirmar contraseña" />
+										</div>
+									</div>
+								</td>
 								<td class="d-flex gap-2">
 									<button class="btn btn-sm btn-success" @click="guardarUsuario(usuario.id)" :disabled="guardando">
 										{{ guardando ? 'Guardando...' : 'Guardar' }}
@@ -167,6 +177,13 @@
 
 <script>
 import axios from 'axios';
+import {
+	REGEX_CORREO_CON_DOMINIO,
+	crearFormularioNuevoUsuarioVacio,
+	extraerErroresServidor,
+	obtenerFechaHoyISO,
+	obtenerPaises,
+} from '../utils/usuarioFormUtils';
 
 export default {
 	name: 'VistaUsuarios',
@@ -181,16 +198,7 @@ export default {
 			idUsuarioEditando: null,
 			tipoAlerta: '',
 			mensajeAlerta: '',
-			formularioNuevo: {
-				nombre: '',
-				correo: '',
-				direccion: '',
-				genero: '',
-				fecha_nacimiento: '',
-				nacionalidad: '',
-				contrasena: '',
-				confirmacion_contrasena: '',
-			},
+			formularioNuevo: crearFormularioNuevoUsuarioVacio(),
 			formularioEdicion: {
 				nombre: '',
 				correo: '',
@@ -198,17 +206,14 @@ export default {
 				genero: '',
 				fecha_nacimiento: '',
 				nacionalidad: '',
+				contrasena: '',
+				contrasena_confirmation: '',
 			},
 		};
 	},
 	computed: {
 		fechaHoy() {
-			const today = new Date();
-			const year = today.getFullYear();
-			const month = String(today.getMonth() + 1).padStart(2, '0');
-			const day = String(today.getDate()).padStart(2, '0');
-
-			return `${year}-${month}-${day}`;
+			return obtenerFechaHoyISO();
 		},
 	},
 	mounted() {
@@ -248,14 +253,10 @@ export default {
 			return paisEncontrado ? paisEncontrado.name : codigoPais;
 		},
 		cargarPaises() {
-            axios.get('/api/countries')
-                .then((respuesta) => {
-                    this.paises = Array.isArray(respuesta.data) ? respuesta.data : [];
-                })
-                .catch((error) => {
-                    this.paises = [];
-                });
-        },
+			return obtenerPaises().then((paises) => {
+				this.paises = paises;
+			});
+		},
 		establecerAlerta(tipo, mensaje) {
 			this.tipoAlerta = tipo;
 			this.mensajeAlerta = mensaje;
@@ -265,16 +266,7 @@ export default {
 			this.mensajeAlerta = '';
 		},
 		limpiarFormularioNuevo() {
-			this.formularioNuevo = {
-				nombre: '',
-				correo: '',
-				direccion: '',
-				genero: '',
-				fecha_nacimiento: '',
-				nacionalidad: '',
-				contrasena: '',
-				confirmacion_contrasena: '',
-			};
+			this.formularioNuevo = crearFormularioNuevoUsuarioVacio();
 		},
 		iniciarCreacion() {
 			this.limpiarAlerta();
@@ -294,7 +286,6 @@ export default {
 		},
 		validarFormularioNuevo() {
 			const errores = [];
-			const regexCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 			if (!this.formularioNuevo.nombre.trim()) {
 				errores.push('El nombre es obligatorio.');
@@ -302,7 +293,7 @@ export default {
 
 			if (!this.formularioNuevo.correo.trim()) {
 				errores.push('El correo es obligatorio.');
-			} else if (!regexCorreo.test(this.formularioNuevo.correo.trim())) {
+			} else if (!REGEX_CORREO_CON_DOMINIO.test(this.formularioNuevo.correo.trim())) {
 				errores.push('El correo debe terminar con un dominio, por ejemplo: usuario@correo.com.');
 			}
 
@@ -353,7 +344,7 @@ export default {
 				})
 				.catch((error) => {
 					if (error.response && error.response.status === 422 && error.response.data.errors) {
-						const mensajes = this.extraerErroresServidor(error.response.data.errors);
+						const mensajes = extraerErroresServidor(error.response.data.errors);
 						this.establecerAlerta('danger', mensajes.join(' '));
 					} else {
 						const mensajeServidor = error.response && error.response.data && error.response.data.message
@@ -391,14 +382,13 @@ export default {
 				genero: usuario.genero || '',
 				fecha_nacimiento: this.normalizarFechaParaInput(usuario.fecha_nacimiento),
 				nacionalidad: usuario.nacionalidad || '',
+				contrasena: '',
+				contrasena_confirmation: '',
 			};
 		},
 		cancelarEdicion() {
 			this.idUsuarioEditando = null;
 			this.guardando = false;
-		},
-		extraerErroresServidor(errores) {
-			return Object.values(errores || {}).reduce((todosLosErrores, erroresActuales) => todosLosErrores.concat(erroresActuales), []);
 		},
 		guardarUsuario(idUsuario) {
 			this.guardando = true;
@@ -413,6 +403,11 @@ export default {
 				nacionalidad: this.formularioEdicion.nacionalidad,
 			};
 
+			if (this.formularioEdicion.contrasena) {
+				payload.contrasena = this.formularioEdicion.contrasena;
+				payload.contrasena_confirmation = this.formularioEdicion.contrasena_confirmation;
+			}
+
 			axios.put(`/usuarios/${idUsuario}`, payload)
 				.then((response) => {
 					this.establecerAlerta('success', response.data.message || 'Usuario actualizado correctamente.');
@@ -421,7 +416,7 @@ export default {
 				})
 				.catch((error) => {
 					if (error.response && error.response.status === 422 && error.response.data.errors) {
-						const mensajes = this.extraerErroresServidor(error.response.data.errors);
+						const mensajes = extraerErroresServidor(error.response.data.errors);
 						this.establecerAlerta('danger', mensajes.join(' '));
 					} else {
 						const mensajeServidor = error.response && error.response.data && error.response.data.message

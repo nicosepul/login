@@ -88,6 +88,12 @@
 
 <script>
 import axios from 'axios';
+import {
+  REGEX_CORREO_CON_DOMINIO,
+  extraerErroresServidor,
+  obtenerFechaHoyISO,
+  obtenerPaises,
+} from '../utils/usuarioFormUtils';
 
 export default {
   name: 'RegistroUsuarioComponente',
@@ -111,12 +117,7 @@ export default {
   },
   computed: {
     fechaHoy() {
-      const today = new Date();
-      const year = today.getFullYear();
-      const month = String(today.getMonth() + 1).padStart(2, '0');
-      const day = String(today.getDate()).padStart(2, '0');
-
-      return `${year}-${month}-${day}`;
+      return obtenerFechaHoyISO();
     },
 
     edadCalculada() {
@@ -160,7 +161,6 @@ export default {
 
     validarFormulario() {
       const errores = [];
-      const regexCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
       if (!this.formulario.nombre.trim()) {
         errores.push('El nombre es obligatorio.');
@@ -168,7 +168,7 @@ export default {
 
       if (!this.formulario.correo.trim()) {
         errores.push('El correo es obligatorio.');
-      } else if (!regexCorreo.test(this.formulario.correo.trim())) {
+      } else if (!REGEX_CORREO_CON_DOMINIO.test(this.formulario.correo.trim())) {
         errores.push('El correo debe tener un formato válido.');
       }
 
@@ -189,21 +189,12 @@ export default {
       return errores;
     },
 
-    extraerErroresServidor(errores) {
-      return Object.values(errores || {}).reduce((todosLosErrores, erroresActuales) => {
-        return todosLosErrores.concat(erroresActuales);
-      }, []);
+    cargarPaises() {
+      return obtenerPaises().then((paises) => {
+        this.paises = paises;
+      });
     },
-
-    async cargarPaises() {
-      try {
-        const response = await axios.get('/api/countries');
-        this.paises = response.data;
-      } catch (error) {
-        console.error('Error cargando países', error);
-      }
-    },
-    async registrarUsuario() {
+    registrarUsuario() {
       this.cargando = true;
       this.limpiarAlerta();
 
@@ -215,37 +206,39 @@ export default {
         return false;
       }
 
-      try {
-        const payload = {
-          nombre: this.formulario.nombre,
-          correo: this.formulario.correo,
-          direccion: this.formulario.direccion,
-          genero: this.formulario.genero,
-          fecha_nacimiento: this.formulario.fechaNacimiento,
-          nacionalidad: this.formulario.nacionalidad,
-          contrasena: this.formulario.contrasena,
-          confirmacion_contrasena: this.formulario.confirmacionContrasena,
-        };
-        const response = await axios.post('/register', payload);
+      const payload = {
+        nombre: this.formulario.nombre,
+        correo: this.formulario.correo,
+        direccion: this.formulario.direccion,
+        genero: this.formulario.genero,
+        fecha_nacimiento: this.formulario.fechaNacimiento,
+        nacionalidad: this.formulario.nacionalidad,
+        contrasena: this.formulario.contrasena,
+        confirmacion_contrasena: this.formulario.confirmacionContrasena,
+      };
 
-        this.establecerAlerta('success', response.data.message || 'Usuario registrado correctamente');
+      return axios.post('/register', payload)
+        .then((response) => {
+          this.establecerAlerta('success', response.data.message || 'Usuario registrado correctamente');
 
-        setTimeout(() => {
-          window.location.href = response.data.redirect;
-        }, 1000);
-      } catch (error) {
-        if (error.response && error.response.status === 422) {
-          this.establecerAlerta('danger', this.extraerErroresServidor(error.response.data.errors));
-        } else {
-          const mensajeServidor = error.response && error.response.data && error.response.data.message
-            ? error.response.data.message
-            : 'Ocurrió un error al registrar el usuario';
+          setTimeout(() => {
+            window.location.href = response.data.redirect;
+          }, 1000);
+        })
+        .catch((error) => {
+          if (error.response && error.response.status === 422) {
+            this.establecerAlerta('danger', extraerErroresServidor(error.response.data.errors));
+          } else {
+            const mensajeServidor = error.response && error.response.data && error.response.data.message
+              ? error.response.data.message
+              : 'Ocurrió un error al registrar el usuario';
 
-          this.establecerAlerta('danger', mensajeServidor);
-        }
-      } finally {
-        this.cargando = false;
-      }
+            this.establecerAlerta('danger', mensajeServidor);
+          }
+        })
+        .finally(() => {
+          this.cargando = false;
+        });
     }
   }
 };

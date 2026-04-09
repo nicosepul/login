@@ -25,6 +25,8 @@ class UpdateUsuarioRequest extends FormRequest
             'genero' => ['nullable', 'string', 'max:50'],
             'fecha_nacimiento' => ['nullable', 'date', 'before_or_equal:today'],
             'nacionalidad' => ['nullable', 'string'],
+            'contrasena' => ['nullable', 'string', 'min:8', 'confirmed'],
+            'contrasena_confirmation' => ['nullable', 'string'],
         ];
     }
 
@@ -35,6 +37,8 @@ class UpdateUsuarioRequest extends FormRequest
             'correo.regex' => 'El correo debe terminar con un dominio, por ejemplo: usuario@correo.com.',
             'correo.unique' => 'El correo ya esta registrado.',
             'fecha_nacimiento.before_or_equal' => 'La fecha de nacimiento no puede ser mayor a hoy.',
+            'contrasena.min' => 'La contraseña debe tener al menos 8 caracteres.',
+            'contrasena.confirmed' => 'Las contraseñas no coinciden.',
         ];
     }
 }

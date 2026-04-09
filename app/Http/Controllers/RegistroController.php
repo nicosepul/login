@@ -22,7 +22,7 @@ class RegistroController
             'nacionalidad' => $datosValidados['nacionalidad'] ?? null,
         ];
 
-        if ($incluyeContrasena) {
+        if ($incluyeContrasena && isset($datosValidados['contrasena']) && $datosValidados['contrasena']) {
             $datosUsuario['password'] = Hash::make($datosValidados['contrasena']);
         }
 
@@ -99,7 +99,7 @@ class RegistroController
     {
         $datosValidados = $solicitud->validated();
 
-        $usuario->update($this->datosParaPersistirUsuario($datosValidados));
+        $usuario->update($this->datosParaPersistirUsuario($datosValidados, true));
 
         return response()->json([
             'message' => 'Usuario actualizado correctamente',
