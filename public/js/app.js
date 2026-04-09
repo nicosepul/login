@@ -6416,6 +6416,71 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
@@ -6425,10 +6490,22 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
       usuarios: [],
       paises: [],
       cargando: false,
+      creando: false,
       guardando: false,
+      mostrandoFormularioNuevo: false,
       idUsuarioEditando: null,
       tipoAlerta: '',
       mensajeAlerta: '',
+      formularioNuevo: {
+        nombre: '',
+        correo: '',
+        direccion: '',
+        genero: '',
+        fecha_nacimiento: '',
+        nacionalidad: '',
+        contrasena: '',
+        confirmacion_contrasena: ''
+      },
       formularioEdicion: {
         nombre: '',
         correo: '',
@@ -6499,16 +6576,102 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
       this.tipoAlerta = '';
       this.mensajeAlerta = '';
     },
-    obtenerUsuarios: function obtenerUsuarios() {
+    limpiarFormularioNuevo: function limpiarFormularioNuevo() {
+      this.formularioNuevo = {
+        nombre: '',
+        correo: '',
+        direccion: '',
+        genero: '',
+        fecha_nacimiento: '',
+        nacionalidad: '',
+        contrasena: '',
+        confirmacion_contrasena: ''
+      };
+    },
+    iniciarCreacion: function iniciarCreacion() {
+      this.limpiarAlerta();
+      if (this.mostrandoFormularioNuevo) {
+        this.cancelarCreacion();
+        return;
+      }
+      this.idUsuarioEditando = null;
+      this.mostrandoFormularioNuevo = true;
+    },
+    cancelarCreacion: function cancelarCreacion() {
+      this.mostrandoFormularioNuevo = false;
+      this.creando = false;
+      this.limpiarFormularioNuevo();
+    },
+    validarFormularioNuevo: function validarFormularioNuevo() {
+      var errores = [];
+      var regexCorreo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!this.formularioNuevo.nombre.trim()) {
+        errores.push('El nombre es obligatorio.');
+      }
+      if (!this.formularioNuevo.correo.trim()) {
+        errores.push('El correo es obligatorio.');
+      } else if (!regexCorreo.test(this.formularioNuevo.correo.trim())) {
+        errores.push('El correo debe terminar con un dominio, por ejemplo: usuario@correo.com.');
+      }
+      if (this.formularioNuevo.fecha_nacimiento && this.formularioNuevo.fecha_nacimiento > this.fechaHoy) {
+        errores.push('La fecha de nacimiento no puede ser mayor a hoy.');
+      }
+      if (!this.formularioNuevo.contrasena) {
+        errores.push('La contraseña es obligatoria.');
+      } else if (this.formularioNuevo.contrasena.length < 6) {
+        errores.push('La contraseña debe tener al menos 6 caracteres.');
+      }
+      if (this.formularioNuevo.contrasena !== this.formularioNuevo.confirmacion_contrasena) {
+        errores.push('La confirmación de contraseña no coincide.');
+      }
+      return errores;
+    },
+    crearUsuario: function crearUsuario() {
       var _this2 = this;
+      this.creando = true;
+      this.limpiarAlerta();
+      var erroresValidacion = this.validarFormularioNuevo();
+      if (erroresValidacion.length) {
+        this.establecerAlerta('danger', erroresValidacion.join(' '));
+        this.creando = false;
+        return;
+      }
+      var payload = {
+        nombre: this.formularioNuevo.nombre,
+        correo: this.formularioNuevo.correo,
+        direccion: this.formularioNuevo.direccion,
+        genero: this.formularioNuevo.genero,
+        fecha_nacimiento: this.formularioNuevo.fecha_nacimiento,
+        nacionalidad: this.formularioNuevo.nacionalidad,
+        contrasena: this.formularioNuevo.contrasena,
+        confirmacion_contrasena: this.formularioNuevo.confirmacion_contrasena
+      };
+      axios__WEBPACK_IMPORTED_MODULE_0___default().post('/usuarios', payload).then(function (response) {
+        _this2.establecerAlerta('success', response.data.message || 'Usuario creado correctamente.');
+        _this2.cancelarCreacion();
+        return _this2.obtenerUsuarios();
+      })["catch"](function (error) {
+        if (error.response && error.response.status === 422 && error.response.data.errors) {
+          var mensajes = _this2.extraerErroresServidor(error.response.data.errors);
+          _this2.establecerAlerta('danger', mensajes.join(' '));
+        } else {
+          var mensajeServidor = error.response && error.response.data && error.response.data.message ? error.response.data.message : 'No se pudo crear el usuario.';
+          _this2.establecerAlerta('danger', mensajeServidor);
+        }
+      })["finally"](function () {
+        _this2.creando = false;
+      });
+    },
+    obtenerUsuarios: function obtenerUsuarios() {
+      var _this3 = this;
       this.cargando = true;
       this.limpiarAlerta();
       return axios__WEBPACK_IMPORTED_MODULE_0___default().get('/usuarios/listado').then(function (response) {
-        _this2.usuarios = Array.isArray(response.data) ? response.data : [];
+        _this3.usuarios = Array.isArray(response.data) ? response.data : [];
       })["catch"](function () {
-        _this2.establecerAlerta('danger', 'No se pudo cargar el listado de usuarios.');
+        _this3.establecerAlerta('danger', 'No se pudo cargar el listado de usuarios.');
       })["finally"](function () {
-        _this2.cargando = false;
+        _this3.cargando = false;
       });
     },
     iniciarEdicion: function iniciarEdicion(usuario) {
@@ -6533,7 +6696,7 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
       }, []);
     },
     guardarUsuario: function guardarUsuario(idUsuario) {
-      var _this3 = this;
+      var _this4 = this;
       this.guardando = true;
       this.limpiarAlerta();
       var payload = {
@@ -6545,33 +6708,33 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
         nacionalidad: this.formularioEdicion.nacionalidad
       };
       axios__WEBPACK_IMPORTED_MODULE_0___default().put("/usuarios/".concat(idUsuario), payload).then(function (response) {
-        _this3.establecerAlerta('success', response.data.message || 'Usuario actualizado correctamente.');
-        _this3.idUsuarioEditando = null;
-        return _this3.obtenerUsuarios();
+        _this4.establecerAlerta('success', response.data.message || 'Usuario actualizado correctamente.');
+        _this4.idUsuarioEditando = null;
+        return _this4.obtenerUsuarios();
       })["catch"](function (error) {
         if (error.response && error.response.status === 422 && error.response.data.errors) {
-          var mensajes = _this3.extraerErroresServidor(error.response.data.errors);
-          _this3.establecerAlerta('danger', mensajes.join(' '));
+          var mensajes = _this4.extraerErroresServidor(error.response.data.errors);
+          _this4.establecerAlerta('danger', mensajes.join(' '));
         } else {
           var mensajeServidor = error.response && error.response.data && error.response.data.message ? error.response.data.message : 'No se pudo actualizar el usuario.';
-          _this3.establecerAlerta('danger', mensajeServidor);
+          _this4.establecerAlerta('danger', mensajeServidor);
         }
       })["finally"](function () {
-        _this3.guardando = false;
+        _this4.guardando = false;
       });
     },
     eliminarUsuario: function eliminarUsuario(idUsuario) {
-      var _this4 = this;
+      var _this5 = this;
       this.limpiarAlerta();
       if (!window.confirm('¿Seguro que deseas eliminar este usuario?')) {
         return;
       }
       axios__WEBPACK_IMPORTED_MODULE_0___default()["delete"]("/usuarios/".concat(idUsuario)).then(function (response) {
-        _this4.establecerAlerta('success', response.data.message || 'Usuario eliminado correctamente.');
-        return _this4.obtenerUsuarios();
+        _this5.establecerAlerta('success', response.data.message || 'Usuario eliminado correctamente.');
+        return _this5.obtenerUsuarios();
       })["catch"](function (error) {
         var mensajeServidor = error.response && error.response.data && error.response.data.message ? error.response.data.message : 'No se pudo eliminar el usuario.';
-        _this4.establecerAlerta('danger', mensajeServidor);
+        _this5.establecerAlerta('danger', mensajeServidor);
       });
     }
   }
@@ -42573,21 +42736,43 @@ var render = function () {
       [
         _c("span", [_vm._v("Usuarios Registrados")]),
         _vm._v(" "),
-        _c(
-          "button",
-          {
-            staticClass: "btn btn-sm btn-light",
-            attrs: { disabled: _vm.cargando },
-            on: { click: _vm.obtenerUsuarios },
-          },
-          [
-            _vm._v(
-              "\n\t\t\t" +
-                _vm._s(_vm.cargando ? "Cargando..." : "Recargar") +
-                "\n\t\t"
-            ),
-          ]
-        ),
+        _c("div", { staticClass: "d-flex gap-2" }, [
+          _c(
+            "button",
+            {
+              staticClass: "btn btn-sm btn-success",
+              attrs: { disabled: _vm.cargando || _vm.creando || _vm.guardando },
+              on: { click: _vm.iniciarCreacion },
+            },
+            [
+              _vm._v(
+                "\n\t\t\t\t" +
+                  _vm._s(
+                    _vm.mostrandoFormularioNuevo
+                      ? "Ocultar formulario"
+                      : "Nuevo usuario"
+                  ) +
+                  "\n\t\t\t"
+              ),
+            ]
+          ),
+          _vm._v(" "),
+          _c(
+            "button",
+            {
+              staticClass: "btn btn-sm btn-light",
+              attrs: { disabled: _vm.cargando || _vm.creando || _vm.guardando },
+              on: { click: _vm.obtenerUsuarios },
+            },
+            [
+              _vm._v(
+                "\n\t\t\t\t" +
+                  _vm._s(_vm.cargando ? "Cargando..." : "Recargar") +
+                  "\n\t\t\t"
+              ),
+            ]
+          ),
+        ]),
       ]
     ),
     _vm._v(" "),
@@ -42603,6 +42788,352 @@ var render = function () {
             },
             [_vm._v("\n\t\t\t" + _vm._s(_vm.mensajeAlerta) + "\n\t\t")]
           )
+        : _vm._e(),
+      _vm._v(" "),
+      _vm.mostrandoFormularioNuevo
+        ? _c("div", { staticClass: "border rounded p-3 mb-4 bg-light" }, [
+            _c("h6", { staticClass: "mb-3" }, [_vm._v("Crear nuevo usuario")]),
+            _vm._v(" "),
+            _c("div", { staticClass: "row g-3" }, [
+              _c("div", { staticClass: "col-md-6" }, [
+                _c("label", { staticClass: "form-label" }, [_vm._v("Nombre")]),
+                _vm._v(" "),
+                _c("input", {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.formularioNuevo.nombre,
+                      expression: "formularioNuevo.nombre",
+                    },
+                  ],
+                  staticClass: "form-control",
+                  attrs: { type: "text" },
+                  domProps: { value: _vm.formularioNuevo.nombre },
+                  on: {
+                    input: function ($event) {
+                      if ($event.target.composing) {
+                        return
+                      }
+                      _vm.$set(
+                        _vm.formularioNuevo,
+                        "nombre",
+                        $event.target.value
+                      )
+                    },
+                  },
+                }),
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "col-md-6" }, [
+                _c("label", { staticClass: "form-label" }, [_vm._v("Correo")]),
+                _vm._v(" "),
+                _c("input", {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.formularioNuevo.correo,
+                      expression: "formularioNuevo.correo",
+                    },
+                  ],
+                  staticClass: "form-control",
+                  attrs: { type: "email" },
+                  domProps: { value: _vm.formularioNuevo.correo },
+                  on: {
+                    input: function ($event) {
+                      if ($event.target.composing) {
+                        return
+                      }
+                      _vm.$set(
+                        _vm.formularioNuevo,
+                        "correo",
+                        $event.target.value
+                      )
+                    },
+                  },
+                }),
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "col-md-6" }, [
+                _c("label", { staticClass: "form-label" }, [
+                  _vm._v("Dirección"),
+                ]),
+                _vm._v(" "),
+                _c("input", {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.formularioNuevo.direccion,
+                      expression: "formularioNuevo.direccion",
+                    },
+                  ],
+                  staticClass: "form-control",
+                  attrs: { type: "text" },
+                  domProps: { value: _vm.formularioNuevo.direccion },
+                  on: {
+                    input: function ($event) {
+                      if ($event.target.composing) {
+                        return
+                      }
+                      _vm.$set(
+                        _vm.formularioNuevo,
+                        "direccion",
+                        $event.target.value
+                      )
+                    },
+                  },
+                }),
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "col-md-6" }, [
+                _c("label", { staticClass: "form-label" }, [_vm._v("Género")]),
+                _vm._v(" "),
+                _c(
+                  "select",
+                  {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.formularioNuevo.genero,
+                        expression: "formularioNuevo.genero",
+                      },
+                    ],
+                    staticClass: "form-select",
+                    on: {
+                      change: function ($event) {
+                        var $$selectedVal = Array.prototype.filter
+                          .call($event.target.options, function (o) {
+                            return o.selected
+                          })
+                          .map(function (o) {
+                            var val = "_value" in o ? o._value : o.value
+                            return val
+                          })
+                        _vm.$set(
+                          _vm.formularioNuevo,
+                          "genero",
+                          $event.target.multiple
+                            ? $$selectedVal
+                            : $$selectedVal[0]
+                        )
+                      },
+                    },
+                  },
+                  [
+                    _c("option", { attrs: { value: "" } }, [
+                      _vm._v("Seleccione"),
+                    ]),
+                    _vm._v(" "),
+                    _c("option", { attrs: { value: "Masculino" } }, [
+                      _vm._v("Masculino"),
+                    ]),
+                    _vm._v(" "),
+                    _c("option", { attrs: { value: "Femenino" } }, [
+                      _vm._v("Femenino"),
+                    ]),
+                    _vm._v(" "),
+                    _c("option", { attrs: { value: "Otro" } }, [
+                      _vm._v("Otro"),
+                    ]),
+                  ]
+                ),
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "col-md-6" }, [
+                _c("label", { staticClass: "form-label" }, [
+                  _vm._v("Fecha nacimiento"),
+                ]),
+                _vm._v(" "),
+                _c("input", {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.formularioNuevo.fecha_nacimiento,
+                      expression: "formularioNuevo.fecha_nacimiento",
+                    },
+                  ],
+                  staticClass: "form-control",
+                  attrs: { type: "date", max: _vm.fechaHoy },
+                  domProps: { value: _vm.formularioNuevo.fecha_nacimiento },
+                  on: {
+                    input: function ($event) {
+                      if ($event.target.composing) {
+                        return
+                      }
+                      _vm.$set(
+                        _vm.formularioNuevo,
+                        "fecha_nacimiento",
+                        $event.target.value
+                      )
+                    },
+                  },
+                }),
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "col-md-6" }, [
+                _c("label", { staticClass: "form-label" }, [
+                  _vm._v("Nacionalidad"),
+                ]),
+                _vm._v(" "),
+                _c(
+                  "select",
+                  {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.formularioNuevo.nacionalidad,
+                        expression: "formularioNuevo.nacionalidad",
+                      },
+                    ],
+                    staticClass: "form-select",
+                    on: {
+                      change: function ($event) {
+                        var $$selectedVal = Array.prototype.filter
+                          .call($event.target.options, function (o) {
+                            return o.selected
+                          })
+                          .map(function (o) {
+                            var val = "_value" in o ? o._value : o.value
+                            return val
+                          })
+                        _vm.$set(
+                          _vm.formularioNuevo,
+                          "nacionalidad",
+                          $event.target.multiple
+                            ? $$selectedVal
+                            : $$selectedVal[0]
+                        )
+                      },
+                    },
+                  },
+                  [
+                    _c("option", { attrs: { value: "" } }, [
+                      _vm._v("Seleccione un país"),
+                    ]),
+                    _vm._v(" "),
+                    _vm._l(_vm.paises, function (pais) {
+                      return _c(
+                        "option",
+                        {
+                          key: pais.alpha2Code,
+                          domProps: { value: pais.numericCode },
+                        },
+                        [
+                          _vm._v(
+                            "\n\t\t\t\t\t\t\t" +
+                              _vm._s(pais.name) +
+                              "\n\t\t\t\t\t\t"
+                          ),
+                        ]
+                      )
+                    }),
+                  ],
+                  2
+                ),
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "col-md-6" }, [
+                _c("label", { staticClass: "form-label" }, [
+                  _vm._v("Contraseña"),
+                ]),
+                _vm._v(" "),
+                _c("input", {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.formularioNuevo.contrasena,
+                      expression: "formularioNuevo.contrasena",
+                    },
+                  ],
+                  staticClass: "form-control",
+                  attrs: { type: "password" },
+                  domProps: { value: _vm.formularioNuevo.contrasena },
+                  on: {
+                    input: function ($event) {
+                      if ($event.target.composing) {
+                        return
+                      }
+                      _vm.$set(
+                        _vm.formularioNuevo,
+                        "contrasena",
+                        $event.target.value
+                      )
+                    },
+                  },
+                }),
+              ]),
+              _vm._v(" "),
+              _c("div", { staticClass: "col-md-6" }, [
+                _c("label", { staticClass: "form-label" }, [
+                  _vm._v("Confirmar contraseña"),
+                ]),
+                _vm._v(" "),
+                _c("input", {
+                  directives: [
+                    {
+                      name: "model",
+                      rawName: "v-model",
+                      value: _vm.formularioNuevo.confirmacion_contrasena,
+                      expression: "formularioNuevo.confirmacion_contrasena",
+                    },
+                  ],
+                  staticClass: "form-control",
+                  attrs: { type: "password" },
+                  domProps: {
+                    value: _vm.formularioNuevo.confirmacion_contrasena,
+                  },
+                  on: {
+                    input: function ($event) {
+                      if ($event.target.composing) {
+                        return
+                      }
+                      _vm.$set(
+                        _vm.formularioNuevo,
+                        "confirmacion_contrasena",
+                        $event.target.value
+                      )
+                    },
+                  },
+                }),
+              ]),
+            ]),
+            _vm._v(" "),
+            _c("div", { staticClass: "d-flex gap-2 mt-3" }, [
+              _c(
+                "button",
+                {
+                  staticClass: "btn btn-success",
+                  attrs: {
+                    disabled: _vm.creando || _vm.guardando || _vm.cargando,
+                  },
+                  on: { click: _vm.crearUsuario },
+                },
+                [
+                  _vm._v(
+                    "\n\t\t\t\t\t" +
+                      _vm._s(_vm.creando ? "Creando..." : "Crear usuario") +
+                      "\n\t\t\t\t"
+                  ),
+                ]
+              ),
+              _vm._v(" "),
+              _c(
+                "button",
+                {
+                  staticClass: "btn btn-secondary",
+                  attrs: { disabled: _vm.creando },
+                  on: { click: _vm.cancelarCreacion },
+                },
+                [_vm._v("\n\t\t\t\t\tCancelar\n\t\t\t\t")]
+              ),
+            ]),
+          ])
         : _vm._e(),
       _vm._v(" "),
       _c("div", { staticClass: "table-responsive" }, [

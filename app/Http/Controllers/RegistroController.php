@@ -2,15 +2,46 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreUsuarioRequest;
+use App\Http\Requests\UpdateUsuarioRequest;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
 
 class RegistroController
 {
+    private function datosParaPersistirUsuario(array $datosValidados, bool $incluyeContrasena = false): array
+    {
+        $datosUsuario = [
+            'nombre' => $datosValidados['nombre'],
+            'correo' => $datosValidados['correo'],
+            'direccion' => $datosValidados['direccion'] ?? null,
+            'genero' => $datosValidados['genero'] ?? null,
+            'fecha_nacimiento' => $datosValidados['fecha_nacimiento'] ?? null,
+            'nacionalidad' => $datosValidados['nacionalidad'] ?? null,
+        ];
+
+        if ($incluyeContrasena) {
+            $datosUsuario['password'] = Hash::make($datosValidados['contrasena']);
+        }
+
+        return $datosUsuario;
+    }
+
+    private function transformarUsuario(User $usuario): array
+    {
+        return [
+            'id' => $usuario->id,
+            'nombre' => $usuario->nombre,
+            'correo' => $usuario->correo,
+            'direccion' => $usuario->direccion,
+            'genero' => $usuario->genero,
+            'fecha_nacimiento' => optional($usuario->fecha_nacimiento)->format('Y-m-d'),
+            'nacionalidad' => $usuario->nacionalidad,
+        ];
+    }
+
     public function index()
     {
         return view('registro_usuario');
@@ -27,34 +58,11 @@ class RegistroController
         return response()->json([]);
     }
 
-    public function registrar(Request $solicitud)
+    public function registrar(StoreUsuarioRequest $solicitud)
     {
-        $datosValidados = $solicitud->validate([
-            'nombre' => ['required', 'string', 'max:255'],
-            'correo' => ['required', 'email', 'unique:users,correo'],
-            'contrasena' => ['required', 'min:6', 'same:confirmacion_contrasena'],
-            'confirmacion_contrasena' => ['required'],
-            'direccion' => ['nullable', 'string', 'max:255'],
-            'genero' => ['nullable', 'string', 'max:50'],
-            'fecha_nacimiento' => ['nullable', 'date', 'before_or_equal:today'],
-            'nacionalidad' => ['nullable', 'string'],
-        ], [
-            'correo.email' => 'El correo debe tener un formato válido.',
-            'correo.unique' => 'El correo ya está registrado.',
-            'confirmacion_contrasena.required' => 'Debes confirmar la contraseña.',
-            'contrasena.same' => 'La confirmación de contraseña no coincide.',
-            'fecha_nacimiento.before_or_equal' => 'La fecha de nacimiento no puede ser mayor a hoy.',
-        ]);
+        $datosValidados = $solicitud->validated();
 
-        $usuario = User::create([
-            'nombre' => $datosValidados['nombre'],
-            'correo' => $datosValidados['correo'],
-            'password' => Hash::make($datosValidados['contrasena']),
-            'direccion' => $datosValidados['direccion'] ?? null,
-            'genero' => $datosValidados['genero'] ?? null,
-            'fecha_nacimiento' => $datosValidados['fecha_nacimiento'] ?? null,
-            'nacionalidad' => $datosValidados['nacionalidad'] ?? null,
-        ]);
+        $usuario = User::create($this->datosParaPersistirUsuario($datosValidados, true));
 
         Auth::guard('user')->login($usuario);
 
@@ -68,58 +76,34 @@ class RegistroController
         return redirect('/')->with('success', 'Usuario registrado correctamente');
     }
 
+    public function crearUsuario(StoreUsuarioRequest $solicitud)
+    {
+        $datosValidados = $solicitud->validated();
+
+        $usuario = User::create($this->datosParaPersistirUsuario($datosValidados, true));
+
+        return response()->json([
+            'message' => 'Usuario creado correctamente',
+            'usuario' => $this->transformarUsuario($usuario),
+        ]);
+    }
+
     public function listarUsuarios()
     {
-        $usuarios = User::orderByDesc('id')->get()->map(function ($usuario) {
-            return [
-                'id' => $usuario->id,
-                'nombre' => $usuario->nombre,
-                'correo' => $usuario->correo,
-                'direccion' => $usuario->direccion,
-                'genero' => $usuario->genero,
-                'fecha_nacimiento' => optional($usuario->fecha_nacimiento)->format('Y-m-d'),
-                'nacionalidad' => $usuario->nacionalidad,
-            ];
-        });
+        $usuarios = User::orderByDesc('id')->get()->map(fn(User $usuario) => $this->transformarUsuario($usuario));
 
         return response()->json($usuarios);
     }
 
-    public function actualizarUsuario(Request $solicitud, User $usuario)
+    public function actualizarUsuario(UpdateUsuarioRequest $solicitud, User $usuario)
     {
-        $datosValidados = $solicitud->validate([
-            'nombre' => ['required', 'string', 'max:255'],
-            'correo' => ['required', 'email', Rule::unique('users', 'correo')->ignore($usuario->id)],
-            'direccion' => ['nullable', 'string', 'max:255'],
-            'genero' => ['nullable', 'string', 'max:50'],
-            'fecha_nacimiento' => ['nullable', 'date', 'before_or_equal:today'],
-            'nacionalidad' => ['nullable', 'string'],
-        ], [
-            'correo.email' => 'El correo debe tener un formato válido.',
-            'correo.unique' => 'El correo ya está registrado.',
-            'fecha_nacimiento.before_or_equal' => 'La fecha de nacimiento no puede ser mayor a hoy.',
-        ]);
+        $datosValidados = $solicitud->validated();
 
-        $usuario->update([
-            'nombre' => $datosValidados['nombre'],
-            'correo' => $datosValidados['correo'],
-            'direccion' => $datosValidados['direccion'] ?? null,
-            'genero' => $datosValidados['genero'] ?? null,
-            'fecha_nacimiento' => $datosValidados['fecha_nacimiento'] ?? null,
-            'nacionalidad' => $datosValidados['nacionalidad'] ?? null,
-        ]);
+        $usuario->update($this->datosParaPersistirUsuario($datosValidados));
 
         return response()->json([
             'message' => 'Usuario actualizado correctamente',
-            'usuario' => [
-                'id' => $usuario->id,
-                'nombre' => $usuario->nombre,
-                'correo' => $usuario->correo,
-                'direccion' => $usuario->direccion,
-                'genero' => $usuario->genero,
-                'fecha_nacimiento' => optional($usuario->fecha_nacimiento)->format('Y-m-d'),
-                'nacionalidad' => $usuario->nacionalidad,
-            ],
+            'usuario' => $this->transformarUsuario($usuario),
         ]);
     }
 

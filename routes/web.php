@@ -36,6 +36,7 @@ Route::middleware('authUser')->group(function () {
     Route::get('/usuarios', function () {
         return view('usuarios');
     })->name('usuarios');
+    Route::post('/usuarios', [RegistroController::class, 'crearUsuario'])->name('usuarios.crear');
     Route::get('/usuarios/listado', [RegistroController::class, 'listarUsuarios'])->name('usuarios.listado');
     Route::put('/usuarios/{usuario}', [RegistroController::class, 'actualizarUsuario'])->name('usuarios.actualizar');
     Route::delete('/usuarios/{usuario}', [RegistroController::class, 'eliminarUsuario'])->name('usuarios.eliminar');
