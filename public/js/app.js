@@ -5875,6 +5875,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
+//
 
 
 
@@ -6006,8 +6007,32 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         errores.push('La hora seleccionada no tiene un formato válido.');
       } else if (Number(this.formulario.hora_cita.split(':')[1]) % 10 !== 0) {
         errores.push('La hora debe seleccionarse en intervalos de 10 minutos.');
+      } else if (this.esHorarioPasadoParaFecha(this.formulario.fecha_cita, this.formulario.hora_cita)) {
+        errores.push('No puedes seleccionar una fecha y hora anteriores al momento actual.');
       }
       return errores;
+    },
+    esFechaHoy: function esFechaHoy(fechaISO) {
+      return fechaISO === this.fechaHoy;
+    },
+    esHorarioPasadoParaFecha: function esHorarioPasadoParaFecha(fechaISO, horaHHMM) {
+      if (!fechaISO || !horaHHMM || !/^\d{2}:\d{2}$/.test(horaHHMM)) {
+        return false;
+      }
+      var fechaSeleccionada = new Date("".concat(fechaISO, "T").concat(horaHHMM, ":00"));
+      if (Number.isNaN(fechaSeleccionada.getTime())) {
+        return false;
+      }
+      return fechaSeleccionada < new Date();
+    },
+    deshabilitarHorasPasadas: function deshabilitarHorasPasadas(fechaSeleccionada) {
+      if (!this.esFechaHoy(this.formulario.fecha_cita)) {
+        return false;
+      }
+      var ahora = new Date();
+      var horaSeleccionada = fechaSeleccionada.getHours() * 60 + fechaSeleccionada.getMinutes();
+      var horaActual = ahora.getHours() * 60 + ahora.getMinutes();
+      return horaSeleccionada < horaActual;
     },
     consultarDisponibilidadHorario: function consultarDisponibilidadHorario() {
       var _arguments = arguments,
@@ -47828,6 +47853,7 @@ var render = function () {
                         "value-type": "format",
                         "minute-step": 10,
                         clearable: false,
+                        "disabled-time": _vm.deshabilitarHorasPasadas,
                         disabled: _vm.cargando,
                         "input-class": "form-control",
                         placeholder: "Seleccione la hora",

@@ -54,6 +54,7 @@
                                     value-type="format"
                                     :minute-step="10"
                                     :clearable="false"
+                                    :disabled-time="deshabilitarHorasPasadas"
                                     :disabled="cargando"
                                     input-class="form-control"
                                     placeholder="Seleccione la hora"
@@ -237,9 +238,38 @@ export default {
                 errores.push('La hora seleccionada no tiene un formato válido.');
             } else if (Number(this.formulario.hora_cita.split(':')[1]) % 10 !== 0) {
                 errores.push('La hora debe seleccionarse en intervalos de 10 minutos.');
+            } else if (this.esHorarioPasadoParaFecha(this.formulario.fecha_cita, this.formulario.hora_cita)) {
+                errores.push('No puedes seleccionar una fecha y hora anteriores al momento actual.');
             }
 
             return errores;
+        },
+        esFechaHoy(fechaISO) {
+            return fechaISO === this.fechaHoy;
+        },
+        esHorarioPasadoParaFecha(fechaISO, horaHHMM) {
+            if (!fechaISO || !horaHHMM || !/^\d{2}:\d{2}$/.test(horaHHMM)) {
+                return false;
+            }
+
+            const fechaSeleccionada = new Date(`${fechaISO}T${horaHHMM}:00`);
+
+            if (Number.isNaN(fechaSeleccionada.getTime())) {
+                return false;
+            }
+
+            return fechaSeleccionada < new Date();
+        },
+        deshabilitarHorasPasadas(fechaSeleccionada) {
+            if (!this.esFechaHoy(this.formulario.fecha_cita)) {
+                return false;
+            }
+
+            const ahora = new Date();
+            const horaSeleccionada = fechaSeleccionada.getHours() * 60 + fechaSeleccionada.getMinutes();
+            const horaActual = ahora.getHours() * 60 + ahora.getMinutes();
+
+            return horaSeleccionada < horaActual;
         },
         async consultarDisponibilidadHorario(mostrarError = false) {
             this.disponibilidadHorario = null;
