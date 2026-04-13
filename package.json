@@ -42,6 +42,7 @@
         "vue-axios": "^3.5.2",
         "vue-paginate": "^3.6.0",
         "vue-select": "^3.18.3",
+        "vue2-datepicker": "^3.11.1",
         "vue2-editor": "^2.10.3",
         "xlsx": "^0.18.5"
     }

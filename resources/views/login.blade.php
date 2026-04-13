@@ -12,10 +12,12 @@
         <form method="POST" action="{{ route('login.store') }}">
             @csrf
             <div class="mb-3">
-                <input type="email" class="form-control" name="correo" placeholder="Correo" required>
+                <label for="login_correo" class="form-label">Correo</label>
+                <input id="login_correo" type="email" class="form-control" name="correo" placeholder="Correo" required>
             </div>
             <div class="mb-3">
-                <input type="password" class="form-control" name="password" placeholder="Password" required>
+                <label for="login_password" class="form-label">Password</label>
+                <input id="login_password" type="password" class="form-control" name="password" placeholder="Password" required>
             </div>
             @error('correo')
                 <div class="text-danger mb-3">{{ $message }}</div>

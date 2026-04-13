@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 use App\Http\Controllers\VeterinariaController;
+use App\Http\Controllers\CitaController;
 use App\Http\Controllers\RegistroController;
 
 Route::get('/razas', [VeterinariaController::class, 'obtenerRazas']);
@@ -26,6 +27,14 @@ Route::get('/ingresos', [VeterinariaController::class, 'obtenerIngresos']);
 Route::put('/mascota/{id}', [VeterinariaController::class, 'actualizarMascota']);
 Route::delete('/mascota/{id}', [VeterinariaController::class, 'eliminarMascota']);
 Route::get('/countries', [RegistroController::class, 'paises']);
+
+Route::get('/duenos', [CitaController::class, 'obtenerDuenos']);
+Route::get('/duenos/{dueno}/mascotas', [CitaController::class, 'obtenerMascotasDelDueno']);
+Route::get('/sucursales', [CitaController::class, 'obtenerSucursales']);
+Route::get('/citas', [CitaController::class, 'obtenerCitas']);
+Route::get('/citas/disponibilidad', [CitaController::class, 'verificarDisponibilidad']);
+Route::post('/citas', [CitaController::class, 'registrar']);
+Route::put('/citas/{cita}/atender', [CitaController::class, 'marcarAtendido']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

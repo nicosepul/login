@@ -25,4 +25,9 @@ class Mascota extends Model
     {
         return $this->hasMany(Ingreso::class);
     }
+
+    public function citas()
+    {
+        return $this->hasMany(Cita::class);
+    }
 }

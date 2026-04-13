@@ -9,7 +9,8 @@
                 <div class="card-body">
                     <div class="row mb-3">
                         <div class="col-md-10">
-                            <input type="text" class="form-control" v-model="rut" @input="formatearRut" placeholder="Ingrese RUT del Dueño" maxlength="12">
+                            <label for="ingreso_rut" class="form-label">RUT del Dueño</label>
+                            <input id="ingreso_rut" name="rut" type="text" class="form-control" v-model="rut" @input="formatearRut" placeholder="Ingrese RUT del Dueño" maxlength="12">
                         </div>
                         <div class="col-md-2">
                             <button @click="buscar" class="btn btn-warning w-100" :disabled="cargando">Buscar</button>
@@ -49,20 +50,20 @@
                         <h5>Datos del Ingreso para: {{ mascota_seleccionada.nombre }} ({{ mascota_seleccionada.raza.nombre }})</h5>
                         <form @submit.prevent="registrar">
                             <div class="mb-3">
-                                <label class="form-label">Motivo de Ingreso</label>
-                                <input type="text" class="form-control" v-model="formulario.motivo" required>
+                                <label for="motivo_ingreso" class="form-label">Motivo de Ingreso</label>
+                                <input id="motivo_ingreso" name="motivo" type="text" class="form-control" v-model="formulario.motivo" required>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Diagnóstico</label>
-                                <textarea class="form-control" v-model="formulario.diagnostico"></textarea>
+                                <label for="diagnostico_ingreso" class="form-label">Diagnóstico</label>
+                                <textarea id="diagnostico_ingreso" name="diagnostico" class="form-control" v-model="formulario.diagnostico"></textarea>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Tratamiento</label>
-                                <textarea class="form-control" v-model="formulario.tratamiento"></textarea>
+                                <label for="tratamiento_ingreso" class="form-label">Tratamiento</label>
+                                <textarea id="tratamiento_ingreso" name="tratamiento" class="form-control" v-model="formulario.tratamiento"></textarea>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Observaciones</label>
-                                <textarea class="form-control" v-model="formulario.observaciones"></textarea>
+                                <label for="observaciones_ingreso" class="form-label">Observaciones</label>
+                                <textarea id="observaciones_ingreso" name="observaciones" class="form-control" v-model="formulario.observaciones"></textarea>
                             </div>
                             <button type="submit" class="btn btn-success" :disabled="cargando">Registrar Ingreso</button>
                         </form>

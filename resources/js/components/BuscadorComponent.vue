@@ -9,7 +9,8 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-10">
-                            <input type="text" class="form-control" v-model="rut" @input="formatearRut" placeholder="Ingrese RUT del Dueño" maxlength="12">
+                            <label for="buscador_rut" class="form-label">RUT del Dueño</label>
+                            <input id="buscador_rut" name="rut" type="text" class="form-control" v-model="rut" @input="formatearRut" placeholder="Ingrese RUT del Dueño" maxlength="12">
                         </div>
                         <div class="col-md-2">
                             <button @click="buscar" class="btn btn-info w-100" :disabled="cargando">Buscar</button>

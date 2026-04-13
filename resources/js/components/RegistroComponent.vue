@@ -8,29 +8,42 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <h5>Datos del Dueño</h5>
-                                <input type="text" class="form-control mb-2" v-model="formulario.rut" @input="formatearRut" placeholder="RUT (ej: 12.345.678-9)" required maxlength="12" :disabled="modoEdicion">
-                                <input type="text" class="form-control mb-2" v-model="formulario.nombre_dueno" placeholder="Nombre" required>
-                                <input type="text" class="form-control mb-2" v-model="formulario.apellido_dueno" placeholder="Apellido" required>
-                                <input type="text" class="form-control mb-2" v-model="formulario.telefono" placeholder="Teléfono">
-                                <input type="text" class="form-control mb-2" v-model="formulario.direccion" placeholder="Dirección">
-                                <input type="email" class="form-control mb-2" v-model="formulario.email" placeholder="Email">
+                                <label for="registro_rut" class="visually-hidden">RUT</label>
+                                <input id="registro_rut" name="rut" type="text" class="form-control mb-2" v-model="formulario.rut" @input="formatearRut" placeholder="RUT (ej: 12.345.678-9)" required maxlength="12" :disabled="modoEdicion">
+                                <label for="registro_nombre_dueno" class="visually-hidden">Nombre dueño</label>
+                                <input id="registro_nombre_dueno" name="nombre_dueno" type="text" class="form-control mb-2" v-model="formulario.nombre_dueno" placeholder="Nombre" required>
+                                <label for="registro_apellido_dueno" class="visually-hidden">Apellido dueño</label>
+                                <input id="registro_apellido_dueno" name="apellido_dueno" type="text" class="form-control mb-2" v-model="formulario.apellido_dueno" placeholder="Apellido" required>
+                                <label for="registro_telefono" class="visually-hidden">Teléfono</label>
+                                <input id="registro_telefono" name="telefono" type="text" class="form-control mb-2" v-model="formulario.telefono" placeholder="Teléfono">
+                                <label for="registro_direccion" class="visually-hidden">Dirección</label>
+                                <input id="registro_direccion" name="direccion" type="text" class="form-control mb-2" v-model="formulario.direccion" placeholder="Dirección">
+                                <label for="registro_email" class="visually-hidden">Email</label>
+                                <input id="registro_email" name="email" type="email" class="form-control mb-2" v-model="formulario.email" placeholder="Email">
                             </div>
                             <div class="col-md-6 mb-3">
                                 <h5>Datos de la Mascota</h5>
-                                <input type="text" class="form-control mb-2" v-model="formulario.nombre_mascota" placeholder="Nombre Mascota" required>
-                                <input type="text" class="form-control mb-2" v-model="formulario.especie" placeholder="Especie (ej: Perro)" required>
-                                <select class="form-control mb-2" v-model="formulario.raza_id" required>
+                                <label for="registro_nombre_mascota" class="visually-hidden">Nombre mascota</label>
+                                <input id="registro_nombre_mascota" name="nombre_mascota" type="text" class="form-control mb-2" v-model="formulario.nombre_mascota" placeholder="Nombre Mascota" required>
+                                <label for="registro_especie" class="visually-hidden">Especie</label>
+                                <input id="registro_especie" name="especie" type="text" class="form-control mb-2" v-model="formulario.especie" placeholder="Especie (ej: Perro)" required>
+                                <label for="registro_raza" class="visually-hidden">Raza</label>
+                                <select id="registro_raza" name="raza_id" class="form-control mb-2" v-model="formulario.raza_id" required>
                                     <option value="">Seleccione Raza</option>
                                     <option v-for="raza in razas" :key="raza.id" :value="raza.id">{{ raza.nombre }}</option>
                                 </select>
-                                <select class="form-control mb-2" v-model="formulario.sexo" required>
+                                <label for="registro_sexo" class="visually-hidden">Sexo</label>
+                                <select id="registro_sexo" name="sexo" class="form-control mb-2" v-model="formulario.sexo" required>
                                     <option value="">Seleccione Sexo</option>
                                     <option value="Macho">Macho</option>
                                     <option value="Hembra">Hembra</option>
                                 </select>
-                                <input type="text" class="form-control mb-2" v-model="formulario.color" placeholder="Color">
-                                <input type="date" class="form-control mb-2" v-model="formulario.fecha_nacimiento">
-                                <input type="number" step="0.1" class="form-control mb-2" v-model="formulario.peso" placeholder="Peso (kg)">
+                                <label for="registro_color" class="visually-hidden">Color</label>
+                                <input id="registro_color" name="color" type="text" class="form-control mb-2" v-model="formulario.color" placeholder="Color">
+                                <label for="registro_fecha_nacimiento" class="visually-hidden">Fecha nacimiento</label>
+                                <input id="registro_fecha_nacimiento" name="fecha_nacimiento" type="date" class="form-control mb-2" v-model="formulario.fecha_nacimiento">
+                                <label for="registro_peso" class="visually-hidden">Peso</label>
+                                <input id="registro_peso" name="peso" type="number" step="0.1" class="form-control mb-2" v-model="formulario.peso" placeholder="Peso (kg)">
                             </div>
                         </div>
                         <button type="submit" class="btn btn-primary">{{ modoEdicion ? 'Actualizar' : 'Registrar' }}</button>

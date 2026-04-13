@@ -22,6 +22,8 @@
                     <a class="navbar-brand" href="{{ url('/') }}">Inicio</a>
                     <div class="d-flex gap-3">
                         <a class="nav-link" href="{{ url('/registro') }}">Registro</a>
+                        <a class="nav-link" href="{{ url('/registro-citas') }}">Registro Citas</a>
+                        <a class="nav-link" href="{{ url('/agenda-citas') }}">Agenda</a>
                         <a class="nav-link" href="{{ url('/buscador') }}">Buscador</a>
                         <a class="nav-link" href="{{ url('/registro-ingreso') }}">Nuevo Ingreso</a>
                         <a class="nav-link" href="{{ url('/ingresos') }}">Historial</a>

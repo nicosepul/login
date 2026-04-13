@@ -17,23 +17,23 @@
 
           <form @submit.prevent="registrarUsuario" novalidate>
             <div class="mb-3">
-              <label class="form-label">Nombre</label>
-              <input v-model="formulario.nombre" type="text" class="form-control" />
+              <label for="registro_usuario_nombre" class="form-label">Nombre</label>
+              <input id="registro_usuario_nombre" name="nombre" v-model="formulario.nombre" type="text" class="form-control" />
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Correo</label>
-              <input v-model="formulario.correo" type="email" class="form-control" />
+              <label for="registro_usuario_correo" class="form-label">Correo</label>
+              <input id="registro_usuario_correo" name="correo" v-model="formulario.correo" type="email" class="form-control" />
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Dirección</label>
-              <input v-model="formulario.direccion" type="text" class="form-control" />
+              <label for="registro_usuario_direccion" class="form-label">Dirección</label>
+              <input id="registro_usuario_direccion" name="direccion" v-model="formulario.direccion" type="text" class="form-control" />
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Género</label>
-              <select v-model="formulario.genero" class="form-select">
+              <label for="registro_usuario_genero" class="form-label">Género</label>
+              <select id="registro_usuario_genero" name="genero" v-model="formulario.genero" class="form-select">
                 <option value="">Seleccione</option>
                 <option value="Masculino">Masculino</option>
                 <option value="Femenino">Femenino</option>
@@ -41,16 +41,16 @@
               </select>
             </div>
             <div class="mb-3">
-                <label class="form-label">Fecha de nacimiento</label>
-              <input v-model="formulario.fechaNacimiento" type="date" class="form-control" :max="fechaHoy" />
+                <label for="registro_usuario_fecha_nacimiento" class="form-label">Fecha de nacimiento</label>
+              <input id="registro_usuario_fecha_nacimiento" name="fecha_nacimiento" v-model="formulario.fechaNacimiento" type="date" class="form-control" :max="fechaHoy" />
 
                 <small class="text-muted d-block mt-1" v-if="edadCalculada !== null">
                     Edad: {{ edadCalculada }} años
                 </small>
             </div>
             <div class="mb-3">
-              <label class="form-label">Nacionalidad</label>
-              <select v-model="formulario.nacionalidad" class="form-select">
+              <label for="registro_usuario_nacionalidad" class="form-label">Nacionalidad</label>
+              <select id="registro_usuario_nacionalidad" name="nacionalidad" v-model="formulario.nacionalidad" class="form-select">
                 <option value="">Seleccione un país</option>
                 <option
                   v-for="pais in paises"
@@ -63,13 +63,13 @@
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Contraseña</label>
-              <input v-model="formulario.contrasena" type="password" class="form-control" />
+              <label for="registro_usuario_contrasena" class="form-label">Contraseña</label>
+              <input id="registro_usuario_contrasena" name="contrasena" v-model="formulario.contrasena" type="password" class="form-control" />
             </div>
 
             <div class="mb-3">
-              <label class="form-label">Confirmar contraseña</label>
-              <input v-model="formulario.confirmacionContrasena" type="password" class="form-control" />
+              <label for="registro_usuario_confirmacion_contrasena" class="form-label">Confirmar contraseña</label>
+              <input id="registro_usuario_confirmacion_contrasena" name="confirmacion_contrasena" v-model="formulario.confirmacionContrasena" type="password" class="form-control" />
             </div>
 
             <button type="submit" class="btn btn-success w-100" :disabled="cargando">

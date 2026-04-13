@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
         \Illuminate\Support\Facades\Schema::disableForeignKeyConstraints();
         $this->call(TestUsersSeeder::class);
         $this->call(RazasSeeder::class);
+        $this->call(SucursalesSeeder::class);
         $this->call(DuenosSeeder::class);
         $this->call(MascotasSeeder::class);
         $this->call(IngresosSeeder::class);

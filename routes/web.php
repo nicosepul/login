@@ -24,6 +24,12 @@ Route::middleware('authUser')->group(function () {
     Route::get('/registro', function () {
         return view('registro');
     })->name('registro');
+    Route::get('/registro-citas', function () {
+        return view('registro_citas');
+    })->name('registro_citas');
+    Route::get('/agenda-citas', function () {
+        return view('agenda_citas');
+    })->name('agenda_citas');
     Route::get('/buscador', function () {
         return view('buscador');
     })->name('buscador');
