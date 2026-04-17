@@ -19,37 +19,28 @@
                 </div>
             </div>
 
-            <div class="card" v-if="mascotas.length > 0">
-                <div class="card-header bg-success text-white">Resultados de la Búsqueda</div>
+            <div class="card" v-if="dueno && mascotas.length > 0">
+                <div class="card-header bg-success text-white">Seleccionar Mascota</div>
                 <div class="card-body">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Especie</th>
-                                <th>Raza</th>
-                                <th>Sexo</th>
-                                <th>Color</th>
-                                <th>Fecha Nac.</th>
-                                <th>Peso (kg)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="m in mascotasPaginadas" :key="m.id">
-                                <td>{{ m.nombre }}</td>
-                                <td>{{ m.especie }}</td>
-                                <td>{{ m.raza.nombre }}</td>
-                                <td>{{ m.sexo }}</td>
-                                <td>{{ m.color }}</td>
-                                <td>{{ m.fecha_nacimiento }}</td>
-                                <td>{{ m.peso }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <div class="d-flex justify-content-between mt-3">
-                        <button class="btn btn-sm btn-secondary" :disabled="paginaActual == 1" @click="paginaActual--">Anterior</button>
-                        <span>Página {{ paginaActual }} de {{ totalPaginas }}</span>
-                        <button class="btn btn-sm btn-secondary" :disabled="paginaActual >= totalPaginas" @click="paginaActual++">Siguiente</button>
+                    <div class="mb-3">
+                        <div><strong>Dueño:</strong> {{ dueno.nombre }} {{ dueno.apellido }}</div>
+                        <div><strong>RUT:</strong> {{ dueno.rut }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-9 mb-3 mb-md-0">
+                            <label for="mascota_select" class="form-label">Mascota</label>
+                            <select id="mascota_select" class="form-select" v-model="mascotaSeleccionadaId">
+                                <option disabled value="">Seleccione una mascota</option>
+                                <option v-for="m in mascotas" :key="m.id" :value="m.id">
+                                    {{ m.nombre }} - {{ m.especie }} ({{ m.raza ? m.raza.nombre : 'Sin raza' }})
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button class="btn btn-primary w-100" @click="abrirPerfil" :disabled="!mascotaSeleccionadaId">
+                                Ver perfil
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -66,19 +57,10 @@ export default {
         return {
             rut: '',
             mascotas: [],
+            dueno: null,
+            mascotaSeleccionadaId: '',
             buscado: false,
-            cargando: false,
-            paginaActual: 1,
-            porPagina: 2
-        }
-    },
-    computed: {
-        totalPaginas() {
-            return Math.ceil(this.mascotas.length / this.porPagina) || 1;
-        },
-        mascotasPaginadas() {
-            const inicio = (this.paginaActual - 1) * this.porPagina;
-            return this.mascotas.slice(inicio, inicio + this.porPagina);
+            cargando: false
         }
     },
     methods: {
@@ -116,18 +98,28 @@ export default {
             if (!this.rut) return;
             this.cargando = true;
             this.buscado = false;
+            this.mascotas = [];
+            this.dueno = null;
+            this.mascotaSeleccionadaId = '';
             axios.get('/api/mascotas-por-rut', { params: { rut: this.rut } })
             .then(respuesta => {
                 this.mascotas = respuesta.data;
+                if (this.mascotas.length > 0 && this.mascotas[0].dueno) {
+                    this.dueno = this.mascotas[0].dueno;
+                }
                 this.buscado = true;
                 this.cargando = false;
-                this.paginaActual = 1;
             })
-            .catch(error => {
+            .catch(() => {
                 this.mascotas = [];
+                this.dueno = null;
                 this.buscado = true;
                 this.cargando = false;
             });
+        },
+        abrirPerfil() {
+            if (!this.mascotaSeleccionadaId) return;
+            window.location.href = `/mascotas/${this.mascotaSeleccionadaId}/perfil`;
         }
     }
 }

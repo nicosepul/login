@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegistroController;
+use App\Models\Mascota;
 use Illuminate\Support\Facades\Route;
 
 // Login
@@ -33,6 +34,9 @@ Route::middleware('authUser')->group(function () {
     Route::get('/buscador', function () {
         return view('buscador');
     })->name('buscador');
+    Route::get('/mascotas/{mascota}/perfil', function (Mascota $mascota) {
+        return view('perfil_mascota', ['mascotaId' => $mascota->id]);
+    })->name('mascotas.perfil');
     Route::get('/registro-ingreso', function () {
         return view('registro_ingreso');
     })->name('registro_ingreso');

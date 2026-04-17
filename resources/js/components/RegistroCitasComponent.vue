@@ -38,13 +38,13 @@
                                     </option>
                                 </select>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-12 col-sm-6 col-lg-3">
                                 <label for="fecha_cita" class="form-label">Fecha</label>
                                 <input id="fecha_cita" name="fecha_cita" v-model="formulario.fecha_cita" type="date" class="form-control" :min="fechaHoy" :disabled="cargando">
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-12 col-sm-6 col-lg-3">
                                 <label class="form-label">Hora</label>
-                                <br />
+                                <div class="hora-picker">
                                 <date-picker
                                     id="hora_cita"
                                     name="hora_cita"
@@ -59,6 +59,7 @@
                                     input-class="form-control"
                                     placeholder="Seleccione la hora"
                                 />
+                                </div>
                                 <small v-if="verificandoHorario" class="text-muted d-block mt-2">
                                     Verificando disponibilidad...
                                 </small>
@@ -426,4 +427,15 @@ export default {
     },
 };
 </script>
+
+<style scoped>
+.hora-picker {
+    width: 100%;
+}
+
+.hora-picker .mx-datepicker {
+    display: block;
+    width: 100%;
+}
+</style>
 

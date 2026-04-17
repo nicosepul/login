@@ -22,6 +22,8 @@ Route::get('/razas', [VeterinariaController::class, 'obtenerRazas']);
 Route::get('/mascotas', [VeterinariaController::class, 'obtenerMascotas']);
 Route::post('/registro-mascota-dueno', [VeterinariaController::class, 'registroMascotaDueno']);
 Route::get('/mascotas-por-rut', [VeterinariaController::class, 'obtenerMascotasPorRut']);
+Route::get('/mascotas/{mascota}/perfil', [VeterinariaController::class, 'obtenerPerfilMascota']);
+Route::post('/mascotas/{mascota}/imagen', [VeterinariaController::class, 'subirImagenMascota']);
 Route::post('/registrar-ingreso', [VeterinariaController::class, 'registrarIngreso']);
 Route::get('/ingresos', [VeterinariaController::class, 'obtenerIngresos']);
 Route::put('/mascota/{id}', [VeterinariaController::class, 'actualizarMascota']);

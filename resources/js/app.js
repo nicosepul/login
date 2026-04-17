@@ -8,6 +8,7 @@ Vue.component('registro-citas-component', require('./components/RegistroCitasCom
 Vue.component('agenda-citas-component', require('./components/AgendaCitasComponent.vue').default);
 Vue.component('registro-usuario-component', require('./components/RegistroUsuarioComponent.vue').default);
 Vue.component('buscador-component', require('./components/BuscadorComponent.vue').default);
+Vue.component('perfil-mascota-component', require('./components/PerfilMascotaComponent.vue').default);
 Vue.component('registro-ingreso-component', require('./components/RegistroIngresoComponent.vue').default);
 Vue.component('lista-ingresos-component', require('./components/ListaIngresosComponent.vue').default);
 Vue.component('vista-usuarios-component', require('./components/VistaUsuarios.vue').default);
