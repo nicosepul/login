@@ -79,6 +79,7 @@ class VeterinariaController
             'fecha_nacimiento' => $mascota->fecha_nacimiento,
             'peso' => $mascota->peso,
             'imagen_url' => $mascota->imagen ? asset('storage/' . $mascota->imagen) : null,
+            'video_url' => $mascota->video ? asset('storage/' . $mascota->video) : null,
             'dueno' => $mascota->dueno,
             'raza' => $mascota->raza,
             'ingresos' => $mascota->ingresos,
@@ -103,6 +104,26 @@ class VeterinariaController
         return response()->json([
             'mensaje' => 'Imagen de perfil actualizada correctamente.',
             'imagen_url' => asset('storage/' . $ruta),
+        ]);
+    }
+
+    public function subirVideoMascota(Request $request, Mascota $mascota)
+    {
+        $request->validate([
+            'video' => ['required', 'file', 'mimes:mp4,mov,webm,ogg', 'max:51200'],
+        ]);
+
+        if ($mascota->video) {
+            Storage::disk('public')->delete($mascota->video);
+        }
+
+        $ruta = $request->file('video')->store('mascotas/videos', 'public');
+        $mascota->video = $ruta;
+        $mascota->save();
+
+        return response()->json([
+            'mensaje' => 'Video de perfil actualizado correctamente.',
+            'video_url' => asset('storage/' . $ruta),
         ]);
     }
 

@@ -5885,6 +5885,31 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   props: {
@@ -5900,6 +5925,8 @@ __webpack_require__.r(__webpack_exports__);
       error: '',
       imagenSeleccionada: null,
       subiendoImagen: false,
+      videoSeleccionado: null,
+      subiendoVideo: false,
       imagenPlaceholder: 'https://via.placeholder.com/500x350?text=Sin+imagen'
     };
   },
@@ -5922,6 +5949,10 @@ __webpack_require__.r(__webpack_exports__);
     onImagenSeleccionada: function onImagenSeleccionada(evento) {
       var archivo = evento.target.files && evento.target.files[0] ? evento.target.files[0] : null;
       this.imagenSeleccionada = archivo;
+    },
+    onVideoSeleccionado: function onVideoSeleccionado(evento) {
+      var archivo = evento.target.files && evento.target.files[0] ? evento.target.files[0] : null;
+      this.videoSeleccionado = archivo;
     },
     subirImagen: function subirImagen() {
       var _this2 = this;
@@ -5953,6 +5984,38 @@ __webpack_require__.r(__webpack_exports__);
         alert(mensaje || 'No se pudo subir la imagen. Intente nuevamente.');
       })["finally"](function () {
         _this2.subiendoImagen = false;
+      });
+    },
+    subirVideo: function subirVideo() {
+      var _this3 = this;
+      if (!this.videoSeleccionado) {
+        return;
+      }
+      var formData = new FormData();
+      formData.append('video', this.videoSeleccionado);
+      this.subiendoVideo = true;
+      axios.post("/api/mascotas/".concat(this.mascotaId, "/video"), formData).then(function (respuesta) {
+        if (_this3.mascota) {
+          _this3.mascota.video_url = respuesta.data.video_url;
+        }
+        _this3.videoSeleccionado = null;
+        if (_this3.$refs.inputVideo) {
+          _this3.$refs.inputVideo.value = '';
+        }
+        alert('Video actualizado correctamente.');
+      })["catch"](function (error) {
+        var _error$response3, _error$response3$data, _error$response4, _error$response4$data;
+        var errores = error === null || error === void 0 ? void 0 : (_error$response3 = error.response) === null || _error$response3 === void 0 ? void 0 : (_error$response3$data = _error$response3.data) === null || _error$response3$data === void 0 ? void 0 : _error$response3$data.errors;
+        var mensaje = error === null || error === void 0 ? void 0 : (_error$response4 = error.response) === null || _error$response4 === void 0 ? void 0 : (_error$response4$data = _error$response4.data) === null || _error$response4$data === void 0 ? void 0 : _error$response4$data.message;
+        if (errores) {
+          var primerCampo = Object.keys(errores)[0];
+          var primerError = primerCampo && errores[primerCampo] && errores[primerCampo][0] ? errores[primerCampo][0] : 'No se pudo subir el video.';
+          alert(primerError);
+          return;
+        }
+        alert(mensaje || 'No se pudo subir el video. Intente nuevamente.');
+      })["finally"](function () {
+        _this3.subiendoVideo = false;
       });
     }
   }
@@ -47899,52 +47962,134 @@ var render = function () {
           _c("div", { staticClass: "col-md-4 mb-4" }, [
             _c("div", { staticClass: "card" }, [
               _c("div", { staticClass: "card-header bg-primary text-white" }, [
-                _vm._v("Foto de perfil"),
+                _vm._v("Multimedia de Mascota"),
               ]),
               _vm._v(" "),
-              _c("div", { staticClass: "card-body text-center" }, [
-                _c("img", {
-                  staticClass: "img-fluid rounded mb-3",
-                  staticStyle: { "max-height": "280px", "object-fit": "cover" },
-                  attrs: {
-                    src: _vm.mascota.imagen_url || _vm.imagenPlaceholder,
-                    alt: "Foto de mascota",
-                  },
-                }),
-                _vm._v(" "),
-                _c("div", { staticClass: "mb-3" }, [
-                  _c("input", {
-                    ref: "inputImagen",
-                    staticClass: "form-control",
-                    attrs: {
-                      type: "file",
-                      accept: "image/png,image/jpeg,image/jpg,image/webp",
+              _c("div", { staticClass: "card-body" }, [
+                _c("div", { staticClass: "mb-4 text-center" }, [
+                  _vm._m(0),
+                  _vm._v(" "),
+                  _c("img", {
+                    staticClass: "img-fluid rounded mb-3",
+                    staticStyle: {
+                      "max-height": "280px",
+                      width: "100%",
+                      "object-fit": "cover",
                     },
-                    on: { change: _vm.onImagenSeleccionada },
+                    attrs: {
+                      src: _vm.mascota.imagen_url || _vm.imagenPlaceholder,
+                      alt: "Foto de mascota",
+                    },
                   }),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "mb-3" }, [
+                    _c("input", {
+                      ref: "inputImagen",
+                      staticClass: "form-control",
+                      attrs: {
+                        type: "file",
+                        accept: "image/png,image/jpeg,image/jpg,image/webp",
+                      },
+                      on: { change: _vm.onImagenSeleccionada },
+                    }),
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "button",
+                    {
+                      staticClass: "btn btn-primary w-100",
+                      attrs: {
+                        disabled: _vm.subiendoImagen || !_vm.imagenSeleccionada,
+                      },
+                      on: { click: _vm.subirImagen },
+                    },
+                    [
+                      _vm._v(
+                        "\n                            " +
+                          _vm._s(
+                            _vm.subiendoImagen
+                              ? "Subiendo imagen..."
+                              : "Actualizar imagen"
+                          ) +
+                          "\n                        "
+                      ),
+                    ]
+                  ),
                 ]),
                 _vm._v(" "),
-                _c(
-                  "button",
-                  {
-                    staticClass: "btn btn-primary w-100",
-                    attrs: {
-                      disabled: _vm.subiendoImagen || !_vm.imagenSeleccionada,
+                _c("hr", { staticClass: "my-3" }),
+                _vm._v(" "),
+                _c("div", { staticClass: "text-center" }, [
+                  _vm._m(1),
+                  _vm._v(" "),
+                  _vm.mascota.video_url
+                    ? _c("div", { staticClass: "mb-3" }, [
+                        _c(
+                          "video",
+                          {
+                            staticClass: "w-100 rounded",
+                            staticStyle: {
+                              "max-height": "280px",
+                              "object-fit": "cover",
+                            },
+                            attrs: { controls: "" },
+                          },
+                          [
+                            _c("source", {
+                              attrs: {
+                                src: _vm.mascota.video_url,
+                                type: "video/mp4",
+                              },
+                            }),
+                            _vm._v(
+                              "\n                                Tu navegador no soporta la reproducción de video.\n                            "
+                            ),
+                          ]
+                        ),
+                      ])
+                    : _c("div", { staticClass: "mb-3" }, [
+                        _c(
+                          "div",
+                          { staticClass: "alert alert-secondary mb-0" },
+                          [_vm._v("Sin video cargado.")]
+                        ),
+                      ]),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "mb-3" }, [
+                    _c("input", {
+                      ref: "inputVideo",
+                      staticClass: "form-control",
+                      attrs: {
+                        type: "file",
+                        accept:
+                          "video/mp4,video/quicktime,video/webm,video/ogg",
+                      },
+                      on: { change: _vm.onVideoSeleccionado },
+                    }),
+                  ]),
+                  _vm._v(" "),
+                  _c(
+                    "button",
+                    {
+                      staticClass: "btn btn-outline-primary w-100",
+                      attrs: {
+                        disabled: _vm.subiendoVideo || !_vm.videoSeleccionado,
+                      },
+                      on: { click: _vm.subirVideo },
                     },
-                    on: { click: _vm.subirImagen },
-                  },
-                  [
-                    _vm._v(
-                      "\n                        " +
-                        _vm._s(
-                          _vm.subiendoImagen
-                            ? "Subiendo imagen..."
-                            : "Actualizar imagen"
-                        ) +
-                        "\n                    "
-                    ),
-                  ]
-                ),
+                    [
+                      _vm._v(
+                        "\n                            " +
+                          _vm._s(
+                            _vm.subiendoVideo
+                              ? "Subiendo video..."
+                              : "Actualizar video"
+                          ) +
+                          "\n                        "
+                      ),
+                    ]
+                  ),
+                ]),
               ]),
             ]),
           ]),
@@ -48003,7 +48148,7 @@ var render = function () {
               ]),
             ]),
             _vm._v(" "),
-            _c("div", { staticClass: "card" }, [
+            _c("div", { staticClass: "card mb-3" }, [
               _c("div", { staticClass: "card-header bg-info text-white" }, [
                 _vm._v("Dueño"),
               ]),
@@ -48042,9 +48187,7 @@ var render = function () {
                   ])
                 : _vm._e(),
             ]),
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "col-md-6" }, [
+            _vm._v(" "),
             _c("div", { staticClass: "card mb-4" }, [
               _c(
                 "div",
@@ -48062,7 +48205,7 @@ var render = function () {
                         "table",
                         { staticClass: "table table-sm table-striped mb-0" },
                         [
-                          _vm._m(0),
+                          _vm._m(2),
                           _vm._v(" "),
                           _c(
                             "tbody",
@@ -48088,9 +48231,7 @@ var render = function () {
                     ]),
               ]),
             ]),
-          ]),
-          _vm._v(" "),
-          _c("div", { staticClass: "col-md-6" }, [
+            _vm._v(" "),
             _c("div", { staticClass: "card mb-4" }, [
               _c("div", { staticClass: "card-header bg-dark text-white" }, [
                 _vm._v("Citas"),
@@ -48106,7 +48247,7 @@ var render = function () {
                         "table",
                         { staticClass: "table table-sm table-striped mb-0" },
                         [
-                          _vm._m(1),
+                          _vm._m(3),
                           _vm._v(" "),
                           _c(
                             "tbody",
@@ -48140,6 +48281,22 @@ var render = function () {
   ])
 }
 var staticRenderFns = [
+  function () {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "mb-2 text-start" }, [
+      _c("strong", [_vm._v("Foto de mascota")]),
+    ])
+  },
+  function () {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "mb-2 text-start" }, [
+      _c("strong", [_vm._v("Video de mascota")]),
+    ])
+  },
   function () {
     var _vm = this
     var _h = _vm.$createElement

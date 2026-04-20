@@ -5,26 +5,56 @@
         <div v-else-if="mascota" class="row">
             <div class="col-md-4 mb-4">
                 <div class="card">
-                    <div class="card-header bg-primary text-white">Foto de perfil</div>
-                    <div class="card-body text-center">
-                        <img
-                            :src="mascota.imagen_url || imagenPlaceholder"
-                            alt="Foto de mascota"
-                            class="img-fluid rounded mb-3"
-                            style="max-height: 280px; object-fit: cover;"
-                        >
-                        <div class="mb-3">
-                            <input
-                                ref="inputImagen"
-                                type="file"
-                                class="form-control"
-                                accept="image/png,image/jpeg,image/jpg,image/webp"
-                                @change="onImagenSeleccionada"
+                    <div class="card-header bg-primary text-white">Multimedia de Mascota</div>
+                    <div class="card-body">
+                        <div class="mb-4 text-center">
+                            <div class="mb-2 text-start"><strong>Foto de mascota</strong></div>
+                            <img
+                                :src="mascota.imagen_url || imagenPlaceholder"
+                                alt="Foto de mascota"
+                                class="img-fluid rounded mb-3"
+                                style="max-height: 280px; width: 100%; object-fit: cover;"
                             >
+                            <div class="mb-3">
+                                <input
+                                    ref="inputImagen"
+                                    type="file"
+                                    class="form-control"
+                                    accept="image/png,image/jpeg,image/jpg,image/webp"
+                                    @change="onImagenSeleccionada"
+                                >
+                            </div>
+                            <button class="btn btn-primary w-100" :disabled="subiendoImagen || !imagenSeleccionada" @click="subirImagen">
+                                {{ subiendoImagen ? 'Subiendo imagen...' : 'Actualizar imagen' }}
+                            </button>
                         </div>
-                        <button class="btn btn-primary w-100" :disabled="subiendoImagen || !imagenSeleccionada" @click="subirImagen">
-                            {{ subiendoImagen ? 'Subiendo imagen...' : 'Actualizar imagen' }}
-                        </button>
+
+                        <hr class="my-3">
+
+                        <div class="text-center">
+                            <div class="mb-2 text-start"><strong>Video de mascota</strong></div>
+                            <div class="mb-3" v-if="mascota.video_url">
+                                <video controls class="w-100 rounded" style="max-height: 280px; object-fit: cover;">
+                                    <source :src="mascota.video_url" type="video/mp4">
+                                    Tu navegador no soporta la reproducción de video.
+                                </video>
+                            </div>
+                            <div class="mb-3" v-else>
+                                <div class="alert alert-secondary mb-0">Sin video cargado.</div>
+                            </div>
+                            <div class="mb-3">
+                                <input
+                                    ref="inputVideo"
+                                    type="file"
+                                    class="form-control"
+                                    accept="video/mp4,video/quicktime,video/webm,video/ogg"
+                                    @change="onVideoSeleccionado"
+                                >
+                            </div>
+                            <button class="btn btn-outline-primary w-100" :disabled="subiendoVideo || !videoSeleccionado" @click="subirVideo">
+                                {{ subiendoVideo ? 'Subiendo video...' : 'Actualizar video' }}
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -45,7 +75,7 @@
                     </div>
                 </div>
 
-                <div class="card">
+                <div class="card mb-3">
                     <div class="card-header bg-info text-white">Dueño</div>
                     <div class="card-body" v-if="mascota.dueno">
                         <div><strong>Nombre:</strong> {{ mascota.dueno.nombre }} {{ mascota.dueno.apellido }}</div>
@@ -55,9 +85,6 @@
                         <div><strong>Dirección:</strong> {{ mascota.dueno.direccion || '-' }}</div>
                     </div>
                 </div>
-            </div>
-
-            <div class="col-md-6">
                 <div class="card mb-4">
                     <div class="card-header bg-secondary text-white">Historial de Ingresos</div>
                     <div class="card-body p-0">
@@ -82,9 +109,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="col-md-6">
                 <div class="card mb-4">
                     <div class="card-header bg-dark text-white">Citas</div>
                     <div class="card-body p-0">
@@ -131,6 +156,8 @@ export default {
             error: '',
             imagenSeleccionada: null,
             subiendoImagen: false,
+            videoSeleccionado: null,
+            subiendoVideo: false,
             imagenPlaceholder: 'https://via.placeholder.com/500x350?text=Sin+imagen'
         };
     },
@@ -156,6 +183,10 @@ export default {
         onImagenSeleccionada(evento) {
             const archivo = evento.target.files && evento.target.files[0] ? evento.target.files[0] : null;
             this.imagenSeleccionada = archivo;
+        },
+        onVideoSeleccionado(evento) {
+            const archivo = evento.target.files && evento.target.files[0] ? evento.target.files[0] : null;
+            this.videoSeleccionado = archivo;
         },
         subirImagen() {
             if (!this.imagenSeleccionada) {
@@ -194,6 +225,45 @@ export default {
                 })
                 .finally(() => {
                     this.subiendoImagen = false;
+                });
+        },
+        subirVideo() {
+            if (!this.videoSeleccionado) {
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('video', this.videoSeleccionado);
+            this.subiendoVideo = true;
+
+            axios.post(`/api/mascotas/${this.mascotaId}/video`, formData)
+                .then((respuesta) => {
+                    if (this.mascota) {
+                        this.mascota.video_url = respuesta.data.video_url;
+                    }
+                    this.videoSeleccionado = null;
+                    if (this.$refs.inputVideo) {
+                        this.$refs.inputVideo.value = '';
+                    }
+                    alert('Video actualizado correctamente.');
+                })
+                .catch((error) => {
+                    const errores = error?.response?.data?.errors;
+                    const mensaje = error?.response?.data?.message;
+
+                    if (errores) {
+                        const primerCampo = Object.keys(errores)[0];
+                        const primerError = primerCampo && errores[primerCampo] && errores[primerCampo][0]
+                            ? errores[primerCampo][0]
+                            : 'No se pudo subir el video.';
+                        alert(primerError);
+                        return;
+                    }
+
+                    alert(mensaje || 'No se pudo subir el video. Intente nuevamente.');
+                })
+                .finally(() => {
+                    this.subiendoVideo = false;
                 });
         }
     }
